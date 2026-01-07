@@ -4,13 +4,15 @@ import com.voteproject.domain.poll.Poll
 import com.voteproject.domain.poll.VoterId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import java.time.LocalDateTime
 
 @DataJpaTest
-class PollRepositoryAdapterTest(
-    private val jpa: SpringDataPollJpa
-) {
+class PollRepositoryAdapterTest {
+
+    @Autowired
+    lateinit var jpa: SpringDataPollJpa
 
     @Test
     fun `poll 저장 후 조회`() {
@@ -36,13 +38,7 @@ class PollRepositoryAdapterTest(
         val saved = jpa.saveAndFlush(poll)
         val optionId = saved.options.first().id!!
 
-        // 투표
-        saved.castVote(
-            voterId = VoterId("user1"),
-            optionId = optionId,
-            now = LocalDateTime.now()
-        )
-
+        saved.castVote(VoterId("user1"), optionId, now = LocalDateTime.now())
         jpa.saveAndFlush(saved)
 
         val found = jpa.findById(saved.id!!).get()
